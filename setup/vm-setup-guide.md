@@ -8,7 +8,7 @@ Complete step-by-step instructions for building the Sysmon + Sysinternals Detect
 
 ---
 
-## 📥 Required Downloads
+##  Required Downloads
 
 Before starting, download these files:
 
@@ -39,7 +39,7 @@ Before starting, download these files:
 
 ---
 
-## 🌐 Part 1: VirtualBox Network Configuration
+##  Part 1: VirtualBox Network Configuration
 
 ### Step 1: Create Internal Network
 
@@ -53,7 +53,7 @@ Before starting, download these files:
 
 ---
 
-## 🪟 Part 2: Windows 10 Victim Machine Setup
+##  Part 2: Windows 10 Victim Machine Setup
 
 ### Step 1: Create the Virtual Machine
 
@@ -263,7 +263,7 @@ Once logged in:
 
 ---
 
-## 🐉 Part 3: Kali Linux Attacker Machine Setup
+##  Part 3: Kali Linux Attacker Machine Setup
 
 ### Step 1: Create the Virtual Machine
 
@@ -382,7 +382,7 @@ Once logged in:
 
 ---
 
-## 🧪 Part 4: Validation & Testing
+##  Part 4: Validation & Testing
 
 ### Test 1: Network Connectivity
 
@@ -432,7 +432,7 @@ nmap -sV 192.168.100.20
 
 ---
 
-## 📸 Snapshot Management Strategy
+##  Snapshot Management Strategy
 
 ### Recommended Snapshots
 
@@ -463,7 +463,7 @@ Create these snapshots as you progress:
 
 ---
 
-## 🔧 Troubleshooting
+##  Troubleshooting
 
 ### Issue: VMs can't ping each other
 
@@ -517,7 +517,7 @@ nmcli con add type ethernet ifname eth0 ip4 192.168.100.10/24
 
 ---
 
-## ✅ Setup Complete Checklist
+##  Setup Complete Checklist
 
 Before proceeding to attack scenarios, verify:
 
@@ -535,7 +535,7 @@ Before proceeding to attack scenarios, verify:
 
 ---
 
-## 🎯 Next Steps
+##  Next Steps
 
 Your lab is now ready! Navigate to:
 - `../scenarios/01-persistence-registry/` - Start your first attack scenario
@@ -547,3 +547,4 @@ Your lab is now ready! Navigate to:
 ---
 
 **Questions or issues?** Open an issue on the GitHub repository.
+
