@@ -17,7 +17,7 @@ Before starting, download these files:
    - Version: 7.0 or newer
    - Install VirtualBox Extension Pack (for better USB support)
 
-2. **Windows 10/11 Evaluation ISO**
+2. **Windows 11 Evaluation ISO**
    - Download: https://www.microsoft.com/en-us/evalcenter/evaluate-windows-11-enterprise
    - Version: Windows 11 Enterprise 22H2 (or Windows 11)
    - Size: ~5-6GB
@@ -547,5 +547,6 @@ Your lab is now ready! Navigate to:
 ---
 
 **Questions or issues?** Open an issue on the GitHub repository.
+
 
 
