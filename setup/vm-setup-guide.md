@@ -86,7 +86,7 @@ Before starting, download these files:
 
 ### Step 2: Configure VM Settings
 
-1. Select **Win10-Victim** and click **Settings**
+1. Select **Win11-Victim** and click **Settings**
 
 2. **System > Motherboard:**
    - Boot Order: Optical, Hard Disk (uncheck Floppy)
@@ -119,7 +119,7 @@ Before starting, download these files:
 
 7. Click **OK** to save settings
 
-### Step 3: Install Windows 10
+### Step 3: Install Windows 11
 
 1. Start the **Win11-Victim** VM
 2. Windows Setup will begin:
@@ -547,6 +547,7 @@ Your lab is now ready! Navigate to:
 ---
 
 **Questions or issues?** Open an issue on the GitHub repository.
+
 
 
 
