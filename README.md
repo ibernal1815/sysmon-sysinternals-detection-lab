@@ -2,7 +2,7 @@
 
 A practical threat detection lab demonstrating Windows attack techniques and their detection using Sysmon and Sysinternals Suite. This project showcases real-world incident response and threat hunting methodologies in a controlled virtualized environment.
 
-## 🎯 Project Overview
+##  Project Overview
 
 This repository documents a hands-on security lab where common attack techniques are executed and detected using:
 - **Sysmon** - Advanced system activity monitoring
@@ -11,7 +11,7 @@ This repository documents a hands-on security lab where common attack techniques
 
 Each scenario includes step-by-step attack execution, detection methodology, and forensic analysis showing exactly how defenders can identify and respond to threats.
 
-## 🏗️ Lab Architecture
+##  Lab Architecture
 
 **Host System:**
 - CPU: Intel i5-14400F
@@ -27,7 +27,7 @@ Each scenario includes step-by-step attack execution, detection methodology, and
 
 All VMs run on an isolated internal network for safe attack simulation.
 
-## 🔬 Attack Scenarios
+##  Attack Scenarios
 
 ### Implemented
 1. **Persistence via Registry Run Keys** - MITRE T1547.001
@@ -96,7 +96,7 @@ Each scenario includes:
    .\tools\baseline-autoruns.ps1
    ```
 
-## 📚 Learning Outcomes
+##  Learning Outcomes
 
 By working through this lab, you'll gain practical experience with:
 
@@ -106,7 +106,7 @@ By working through this lab, you'll gain practical experience with:
 - **PowerShell Automation:** Creating scripts for baseline comparison and threat hunting
 - **MITRE ATT&CK Mapping:** Understanding how real attacks map to the framework
 
-## 📂 Repository Structure
+##  Repository Structure
 
 ```
 ├── setup/               # Lab setup guides and Sysmon configuration
@@ -115,7 +115,7 @@ By working through this lab, you'll gain practical experience with:
 └── resources/           # Cheat sheets and reference materials
 ```
 
-## 🎓 Use Cases
+##  Use Cases
 
 - **Portfolio Project** - Demonstrate practical security skills to employers
 - **Interview Preparation** - Hands-on experience discussing real attack scenarios
@@ -123,11 +123,11 @@ By working through this lab, you'll gain practical experience with:
 - **Certification Study** - Practical lab for CySA+, Security+, or GCFA preparation
 - **Home Lab Learning** - Self-paced security research and skill development
 
-## ⚠️ Legal Disclaimer
+##  Legal Disclaimer
 
 This lab is for **educational purposes only**. All attack techniques are performed in an isolated virtual environment. Do not use these techniques against systems you do not own or have explicit permission to test.
 
-## 🤝 Contributing
+##  Contributing
 
 Found a new detection technique or want to add a scenario? Contributions are welcome!
 
@@ -137,11 +137,11 @@ Found a new detection technique or want to add a scenario? Contributions are wel
 4. Push to the branch (`git push origin feature/new-scenario`)
 5. Open a Pull Request
 
-## 📝 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🔗 Connect
+##  Connect
 
 **Isaiah** - Cloud Windows Systems Administrator & Security Researcher
 
@@ -149,7 +149,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
 - Portfolio: [yourportfolio.com](https://yourportfolio.com)
 
-## 📖 References & Further Reading
+##  References & Further Reading
 
 - [Sysinternals Documentation](https://docs.microsoft.com/en-us/sysinternals/)
 - [Sysmon Configuration Reference](https://github.com/SwiftOnSecurity/sysmon-config)
@@ -158,4 +158,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-⭐ **If you find this project helpful, please consider giving it a star!**
+ **If you find this project helpful, please consider giving it a star!**
