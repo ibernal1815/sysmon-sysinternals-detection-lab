@@ -24,14 +24,14 @@ This detection lab uses an isolated virtual environment to safely simulate attac
 
 ##  Virtual Machine Layout
 
-### Windows 10 Victim Machine
+### Windows 11 Victim Machine
 **Purpose:** Target system instrumented for detection and analysis
 
 **Specifications:**
 - **RAM:** 6GB
 - **CPU:** 4 cores
 - **Disk:** 60GB (dynamically allocated)
-- **OS:** Windows 10 Pro 22H2 (or Windows 11)
+- **OS:** Windows 11 Pro 22H2 (or Windows 11 Enterprise)
 - **Network Adapters:**
   - Adapter 1: NAT (for internet access during setup)
   - Adapter 2: Internal Network "AttackLab"
@@ -274,4 +274,5 @@ This ensures reproducibility and helps others learn from your work.
 ---
 
 **Next Step:** Follow `vm-setup-guide.md` to build this architecture from scratch.
+
 
