@@ -42,7 +42,7 @@ Each scenario includes:
 - ✅ Screenshots and event logs
 - ✅ IOCs (Indicators of Compromise)
 
-## 🛠️ Tools & Technologies
+##  Tools & Technologies
 
 **Detection & Analysis:**
 - Sysmon (SwiftOnSecurity config baseline)
@@ -63,7 +63,7 @@ Each scenario includes:
 - Elastic Stack (optional)
 - Custom PowerShell parsing scripts
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 - VirtualBox 7.0+
