@@ -21,7 +21,7 @@ Each scenario includes step-by-step attack execution, detection methodology, and
 - Hypervisor: VirtualBox on Windows 11
 
 **Virtual Machines:**
-- **Windows 10 Victim** (6GB RAM) - Instrumented with Sysmon, target for attacks
+- **Windows 11 Enterprise Victim** (6GB RAM) - Instrumented with Sysmon, target for attacks
 - **Kali Linux Attacker** (4GB RAM) - Offensive tooling and exploit execution
 - **Ubuntu ELK Stack** (4GB RAM) - *Optional* - Log aggregation and analysis
 
@@ -67,7 +67,7 @@ Each scenario includes:
 
 ### Prerequisites
 - VirtualBox 7.0+
-- Windows 10/11 ISO
+- Windows 10/11 Enterprise ISO
 - Kali Linux ISO
 - 16GB+ RAM available for VMs
 - Basic PowerShell knowledge
