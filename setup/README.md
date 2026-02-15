@@ -2,7 +2,7 @@
 
 This directory contains everything you need to build the Sysmon + Sysinternals Detection Lab from scratch.
 
-## 📋 Overview
+##  Overview
 
 Setting up this lab takes approximately **2-3 hours** and requires:
 - VirtualBox installed on your host machine
@@ -11,7 +11,7 @@ Setting up this lab takes approximately **2-3 hours** and requires:
 - 16GB+ available RAM
 - 100GB+ free disk space
 
-## 🗂️ Contents
+##  Contents
 
 ### `lab-architecture.png`
 Visual diagram showing the complete network topology, VM layout, and data flow between components.
@@ -40,7 +40,7 @@ Production-ready Sysmon configuration file based on SwiftOnSecurity's config wit
 - File creation events
 - Image/DLL load monitoring
 
-## 🚀 Quick Start Path
+##  Quick Start Path
 
 If you're setting up the lab for the first time, follow this order:
 
@@ -50,7 +50,7 @@ If you're setting up the lab for the first time, follow this order:
 4. **Take snapshots** - Save clean baseline states
 5. **Run validation tests** - Verify Sysmon is logging correctly
 
-## ✅ Validation Checklist
+##  Validation Checklist
 
 Before running attack scenarios, verify:
 
@@ -63,7 +63,7 @@ Before running attack scenarios, verify:
 - [ ] Windows Defender disabled (for controlled testing)
 - [ ] Clean baseline snapshot created
 
-## 🔧 Troubleshooting
+##  Troubleshooting
 
 **Sysmon not logging events:**
 ```powershell
@@ -87,14 +87,14 @@ Restart-Service Sysmon64
 - Disable unnecessary Windows services
 - Close other applications on host
 
-## 📚 Additional Resources
+##  Additional Resources
 
 - [VirtualBox Documentation](https://www.virtualbox.org/manual/)
 - [Sysmon Documentation](https://docs.microsoft.com/en-us/sysinternals/downloads/sysmon)
 - [SwiftOnSecurity Sysmon Config](https://github.com/SwiftOnSecurity/sysmon-config)
 - [Windows 10 Evaluation ISOs](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-10-enterprise)
 
-## 💡 Pro Tips
+##  Pro Tips
 
 - **Snapshot early, snapshot often** - Take snapshots before each major change
 - **Name snapshots descriptively** - "Clean Install", "Sysmon Configured", "Pre-Attack Baseline"
@@ -102,7 +102,7 @@ Restart-Service Sysmon64
 - **Test incrementally** - Verify each component works before moving to next step
 - **Keep ISOs** - Save original installation media for rebuilding if needed
 
-## 🎯 Next Steps
+##  Next Steps
 
 Once your lab is fully set up and validated:
 1. Navigate to `../scenarios/01-persistence-registry/`
@@ -113,3 +113,4 @@ Once your lab is fully set up and validated:
 ---
 
 **Need help?** Open an issue on GitHub or check the troubleshooting section in the main README.
+
