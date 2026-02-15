@@ -36,11 +36,11 @@ All VMs run on an isolated internal network for safe attack simulation.
 4. **Process Injection (DLL)** - MITRE T1055.001
 
 Each scenario includes:
-- ✅ Attack execution steps
-- ✅ Sysmon event analysis
-- ✅ Sysinternals detection walkthrough
-- ✅ Screenshots and event logs
-- ✅ IOCs (Indicators of Compromise)
+-  Attack execution steps
+-  Sysmon event analysis
+-  Sysinternals detection walkthrough
+-  Screenshots and event logs
+-  IOCs (Indicators of Compromise)
 
 ##  Tools & Technologies
 
