@@ -1,10 +1,10 @@
 # Lab Architecture
 
-## 🏗️ Overview
+##  Overview
 
 This detection lab uses an isolated virtual environment to safely simulate attacks and practice detection techniques. The architecture prioritizes security isolation while maintaining flexibility for logging and analysis.
 
-## 🖥️ Host System Specifications
+##  Host System Specifications
 
 **Hardware:**
 - **CPU:** Intel Core i5-14400F (10 cores, 16 threads)
@@ -22,7 +22,7 @@ This detection lab uses an isolated virtual environment to safely simulate attac
 - Host OS: ~28GB RAM remaining
 - Adequate overhead for smooth operation
 
-## 📦 Virtual Machine Layout
+##  Virtual Machine Layout
 
 ### Windows 10 Victim Machine
 **Purpose:** Target system instrumented for detection and analysis
@@ -100,7 +100,7 @@ This detection lab uses an isolated virtual environment to safely simulate attac
 
 **Note:** This VM is optional. You can analyze Sysmon logs directly on the victim machine using Event Viewer or export to your host for analysis.
 
-## 🌐 Network Architecture
+##  Network Architecture
 
 ### Network Topology
 
@@ -150,7 +150,7 @@ This detection lab uses an isolated virtual environment to safely simulate attac
 - **When to use:** During VM configuration phase only
 - **Security:** Disable NAT adapter before running attack scenarios
 
-## 🔄 Data Flow
+##  Data Flow
 
 ### Attack Execution Flow
 ```
@@ -185,7 +185,7 @@ Kibana Dashboard
 8. Repeat with variations
 ```
 
-## 🔒 Security Considerations
+##  Security Considerations
 
 ### Isolation Strategy
 - **No outbound internet** from attack network during active testing
@@ -206,7 +206,7 @@ Kibana Dashboard
 4. **Document everything** - Maintain lab notebook with timestamps
 5. **Clean up thoroughly** - Restore to baseline between scenarios
 
-## 📊 Resource Monitoring
+##  Resource Monitoring
 
 **Recommended Host Resources During Lab Use:**
 - **Available RAM:** 28GB+ for smooth operation
@@ -220,7 +220,7 @@ Kibana Dashboard
 - Enable VT-x/AMD-V and nested paging in BIOS
 - Disable unnecessary Windows services in victim VM
 
-## 🔄 Snapshot Strategy
+##  Snapshot Strategy
 
 **Recommended Snapshots:**
 
@@ -236,7 +236,7 @@ YYYY-MM-DD_VMName_Description
 Example: 2024-02-15_Win10Victim_BaselineReady
 ```
 
-## 🎯 Scalability Options
+##  Scalability Options
 
 ### Expanding the Lab
 
@@ -260,7 +260,7 @@ Example: 2024-02-15_Win10Victim_BaselineReady
 - Integrate with Cuckoo Sandbox
 - Capture full PCAP for traffic analysis
 
-## 📝 Documentation Standards
+##  Documentation Standards
 
 Every configuration change should be documented:
 - What was changed and why
@@ -274,3 +274,4 @@ This ensures reproducibility and helps others learn from your work.
 ---
 
 **Next Step:** Follow `vm-setup-guide.md` to build this architecture from scratch.
+
