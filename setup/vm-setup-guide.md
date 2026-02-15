@@ -18,8 +18,8 @@ Before starting, download these files:
    - Install VirtualBox Extension Pack (for better USB support)
 
 2. **Windows 10/11 Evaluation ISO**
-   - Download: https://www.microsoft.com/en-us/evalcenter/evaluate-windows-10-enterprise
-   - Version: Windows 10 Enterprise 22H2 (or Windows 11)
+   - Download: https://www.microsoft.com/en-us/evalcenter/evaluate-windows-11-enterprise
+   - Version: Windows 11 Enterprise 22H2 (or Windows 11)
    - Size: ~5-6GB
    - Valid for 90 days (renewable)
 
@@ -53,15 +53,15 @@ Before starting, download these files:
 
 ---
 
-##  Part 2: Windows 10 Victim Machine Setup
+##  Part 2: Windows 11 Victim Machine Setup
 
 ### Step 1: Create the Virtual Machine
 
 1. Click **New** in VirtualBox Manager
 2. Configure basic settings:
-   - **Name:** Win10-Victim
+   - **Name:** Win11-Victim
    - **Type:** Microsoft Windows
-   - **Version:** Windows 10 (64-bit) or Windows 11 (64-bit)
+   - **Version:** Windows 11 (64-bit)
    - Click **Next**
 
 3. **Memory Size:** 6144 MB (6GB)
@@ -104,7 +104,7 @@ Before starting, download these files:
 5. **Storage:**
    - Click the **Empty** CD icon under Controller: IDE
    - Click the CD icon on the right > **Choose a disk file**
-   - Select your **Windows 10 ISO**
+   - Select your **Windows 11 ISO**
 
 6. **Network:**
    - **Adapter 1:**
@@ -121,11 +121,11 @@ Before starting, download these files:
 
 ### Step 3: Install Windows 10
 
-1. Start the **Win10-Victim** VM
+1. Start the **Win11-Victim** VM
 2. Windows Setup will begin:
    - Language: English (or your preference)
    - Click **Install Now**
-   - Select **Windows 10 Enterprise Evaluation** (or Pro)
+   - Select **Windows 11 Enterprise Evaluation** (or Pro)
    - Accept license terms
    - Choose **Custom: Install Windows only (advanced)**
    - Select the virtual hard disk and click **Next**
@@ -252,11 +252,11 @@ Once logged in:
 ### Step 8: Create Baseline Snapshot
 
 1. **Shut down the VM** (Start > Shutdown)
-2. In VirtualBox Manager, select **Win10-Victim**
+2. In VirtualBox Manager, select **Win11-Victim**
 3. Click **Snapshots** (top-right)
 4. Click **Take** (camera icon)
 5. Name: **"Baseline-Sysmon-Configured"**
-6. Description: "Clean Windows 10 with Sysmon and Sysinternals installed"
+6. Description: "Clean Windows 11 with Sysmon and Sysinternals installed"
 7. Click **OK**
 
 **Important:** This snapshot is your clean baseline. Restore to this before each new attack scenario.
@@ -521,7 +521,7 @@ nmcli con add type ethernet ifname eth0 ip4 192.168.100.10/24
 
 Before proceeding to attack scenarios, verify:
 
-- [ ] Windows 10 VM fully installed and updated
+- [ ] Windows 11 VM fully installed and updated
 - [ ] Sysmon installed and logging events
 - [ ] Sysinternals Suite extracted to C:\Tools\
 - [ ] Windows Defender disabled
@@ -547,4 +547,5 @@ Your lab is now ready! Navigate to:
 ---
 
 **Questions or issues?** Open an issue on the GitHub repository.
+
 
