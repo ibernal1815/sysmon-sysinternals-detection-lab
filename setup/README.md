@@ -6,7 +6,7 @@ This directory contains everything you need to build the Sysmon + Sysinternals D
 
 Setting up this lab takes approximately **2-3 hours** and requires:
 - VirtualBox installed on your host machine
-- Windows 10/11 ISO (evaluation version available from Microsoft)
+- Windows 11 ISO (evaluation version available from Microsoft)
 - Kali Linux ISO (free download)
 - 16GB+ available RAM
 - 100GB+ free disk space
@@ -55,7 +55,7 @@ If you're setting up the lab for the first time, follow this order:
 Before running attack scenarios, verify:
 
 - [ ] VirtualBox internal network configured
-- [ ] Windows 10 VM can access internet (for updates)
+- [ ] Windows 11 VM can access internet (for updates)
 - [ ] Kali VM can ping Windows VM on internal network
 - [ ] Sysmon is running (`Get-Service Sysmon64`)
 - [ ] Sysmon events appearing in Event Viewer (Event ID 1, 3, 13, etc.)
@@ -92,7 +92,7 @@ Restart-Service Sysmon64
 - [VirtualBox Documentation](https://www.virtualbox.org/manual/)
 - [Sysmon Documentation](https://docs.microsoft.com/en-us/sysinternals/downloads/sysmon)
 - [SwiftOnSecurity Sysmon Config](https://github.com/SwiftOnSecurity/sysmon-config)
-- [Windows 10 Evaluation ISOs](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-10-enterprise)
+- [Windows 11 Evaluation ISOs](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-11-enterprise)
 
 ##  Pro Tips
 
@@ -113,4 +113,5 @@ Once your lab is fully set up and validated:
 ---
 
 **Need help?** Open an issue on GitHub or check the troubleshooting section in the main README.
+
 
