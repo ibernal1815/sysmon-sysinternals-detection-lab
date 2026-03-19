@@ -141,14 +141,6 @@ Found a new detection technique or want to add a scenario? Contributions are wel
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-##  Connect
-
-**Isaiah** - Cloud Windows Systems Administrator & Security Researcher
-
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Portfolio: [yourportfolio.com](https://yourportfolio.com)
-
 ##  References & Further Reading
 
 - [Sysinternals Documentation](https://docs.microsoft.com/en-us/sysinternals/)
