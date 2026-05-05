@@ -1,153 +1,57 @@
 # Sysmon + Sysinternals Detection Lab
 
-A practical threat detection lab demonstrating Windows attack techniques and their detection using Sysmon and Sysinternals Suite. This project showcases real-world incident response and threat hunting methodologies in a controlled virtualized environment.
+A hands-on Windows detection lab built to practice identifying attacker TTPs using Sysmon and the Sysinternals Suite, with each scenario mapped to MITRE ATT&CK. The goal is to document not just what the attack looks like, but exactly how a defender catches it at the event level.
 
-##  Project Overview
+This is a work-in-progress lab. Scenarios will be added as they are fully documented with real logs, event IDs, and detection logic rather than placeholder content.
 
-This repository documents a hands-on security lab where common attack techniques are executed and detected using:
-- **Sysmon** - Advanced system activity monitoring
-- **Sysinternals Suite** - Process Explorer, Process Monitor, Autoruns, TCPView, and more
-- **MITRE ATT&CK Framework** - Industry-standard attack technique mapping
+## Lab Environment
 
-Each scenario includes step-by-step attack execution, detection methodology, and forensic analysis showing exactly how defenders can identify and respond to threats.
+The lab runs on VirtualBox with three VMs on an isolated internal network.
 
-##  Lab Architecture
+The victim machine is a Windows 11 Enterprise VM with Sysmon installed using the SwiftOnSecurity config as a baseline. The attacker machine is Kali Linux with standard offensive tooling. There is an optional Ubuntu ELK Stack VM for log aggregation, but most analysis is done directly in Event Viewer and Sysinternals tools to keep things close to what a SOC analyst actually works with.
 
-**Host System:**
-- CPU: Intel i5-14400F
-- RAM: 48GB DDR4
-- Storage: 1TB NVMe
-- Network: 2.5Gb Ethernet
-- Hypervisor: VirtualBox on Windows 11
+Host specs are an Intel i5-14400F, 48GB DDR4, and 1TB NVMe running Windows 11 with VirtualBox 7.
 
-**Virtual Machines:**
-- **Windows 11 Enterprise Victim** (6GB RAM) - Instrumented with Sysmon, target for attacks
-- **Kali Linux Attacker** (4GB RAM) - Offensive tooling and exploit execution
-- **Ubuntu ELK Stack** (4GB RAM) - *Optional* - Log aggregation and analysis
+## Setup
 
-All VMs run on an isolated internal network for safe attack simulation.
+The `setup/` folder contains the Sysmon configuration XML and the VM networking guide. Start there before running any scenario.
 
-##  Attack Scenarios
+1. Clone the repo and navigate into it.
+2. Follow `setup/vm-setup-guide.md` to configure the VirtualBox internal network and provision the VMs.
+3. Deploy Sysmon on the victim VM using `setup/sysmon-config.xml`.
 
-### Implemented
-1. **Persistence via Registry Run Keys** - MITRE T1547.001
-2. **Credential Dumping (LSASS)** - MITRE T1003.001
-3. **Lateral Movement via PsExec** - MITRE T1570
-4. **Process Injection (DLL)** - MITRE T1055.001
+## Scenarios
 
-Each scenario includes:
--  Attack execution steps
--  Sysmon event analysis
--  Sysinternals detection walkthrough
--  Screenshots and event logs
--  IOCs (Indicators of Compromise)
+Each scenario folder will contain the attack steps, the specific Sysmon event IDs triggered, raw log output, Sysinternals detection walkthrough, and a detection rule. Nothing gets added to this list until it is fully documented.
 
-##  Tools & Technologies
+| ID | Technique | MITRE | Status |
+|----|-----------|-------|--------|
+| 01 | Persistence via Registry Run Keys | T1547.001 | In progress |
+| 02 | Credential Dumping via LSASS | T1003.001 | Planned |
+| 03 | Lateral Movement via PsExec | T1570 | Planned |
+| 04 | DLL Injection | T1055.001 | Planned |
 
-**Detection & Analysis:**
-- Sysmon (SwiftOnSecurity config baseline)
-- Process Explorer
-- Process Monitor
-- Autoruns
-- TCPView
-- ProcDump
-
-**Attack Simulation:**
-- Metasploit Framework
-- PowerShell Empire
-- Mimikatz
-- Custom PowerShell scripts
-
-**Log Analysis:**
-- Windows Event Viewer
-- Elastic Stack (optional)
-- Custom PowerShell parsing scripts
-
-##  Quick Start
-
-### Prerequisites
-- VirtualBox 7.0+
-- Windows 10/11 Enterprise ISO
-- Kali Linux ISO
-- 16GB+ RAM available for VMs
-- Basic PowerShell knowledge
-
-### Setup Steps
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/sysmon-sysinternals-detection-lab.git
-   cd sysmon-sysinternals-detection-lab
-   ```
-
-2. **Build the lab environment**
-   - Follow the guide in `setup/vm-setup-guide.md`
-   - Configure internal network in VirtualBox
-   - Install Sysmon using `setup/sysmon-config.xml`
-
-3. **Run a scenario**
-   - Navigate to any scenario folder (e.g., `scenarios/01-persistence-registry/`)
-   - Follow the attack steps in the README
-   - Use Sysinternals tools to detect the activity
-   - Compare your findings with documented results
-
-4. **Create baseline (recommended)**
-   ```powershell
-   .\tools\baseline-autoruns.ps1
-   ```
-
-##  Learning Outcomes
-
-By working through this lab, you'll gain practical experience with:
-
-- **Threat Detection:** Identifying malicious activity using Sysmon event correlation
-- **Forensic Analysis:** Using Sysinternals to investigate running processes, network connections, and persistence mechanisms
-- **Incident Response:** Building investigation timelines from attack artifacts
-- **PowerShell Automation:** Creating scripts for baseline comparison and threat hunting
-- **MITRE ATT&CK Mapping:** Understanding how real attacks map to the framework
-
-##  Repository Structure
+## Repository Structure
 
 ```
-├── setup/               # Lab setup guides and Sysmon configuration
-├── scenarios/           # Attack scenarios with detection walkthroughs
-├── tools/               # PowerShell scripts for automation and hunting
-└── resources/           # Cheat sheets and reference materials
+setup/          lab setup guides and Sysmon config
+scenarios/      attack scenarios with detection walkthroughs (in progress)
+detections/     Sigma rules and Sysmon filter logic per scenario
 ```
 
-##  Use Cases
+## Tools Used
 
-- **Portfolio Project** - Demonstrate practical security skills to employers
-- **Interview Preparation** - Hands-on experience discussing real attack scenarios
-- **SOC Training** - Learn detection techniques before starting analyst roles
-- **Certification Study** - Practical lab for CySA+, Security+, or GCFA preparation
-- **Home Lab Learning** - Self-paced security research and skill development
+Detection side: Sysmon, Process Explorer, Process Monitor, Autoruns, TCPView, ProcDump, Windows Event Viewer, and Elastic Stack optionally for log search.
 
-##  Legal Disclaimer
+Attack simulation: Metasploit, Mimikatz, and custom PowerShell scripts.
 
-This lab is for **educational purposes only**. All attack techniques are performed in an isolated virtual environment. Do not use these techniques against systems you do not own or have explicit permission to test.
+## References
 
-##  Contributing
+[Sysinternals Documentation](https://docs.microsoft.com/en-us/sysinternals/)
+[SwiftOnSecurity Sysmon Config](https://github.com/SwiftOnSecurity/sysmon-config)
+[MITRE ATT&CK](https://attack.mitre.org/)
+[Ultimate Windows Security Event Encyclopedia](https://www.ultimatewindowssecurity.com/)
 
-Found a new detection technique or want to add a scenario? Contributions are welcome!
+## Legal
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/new-scenario`)
-3. Commit your changes (`git commit -m 'Add new lateral movement scenario'`)
-4. Push to the branch (`git push origin feature/new-scenario`)
-5. Open a Pull Request
-
-##  License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-##  References & Further Reading
-
-- [Sysinternals Documentation](https://docs.microsoft.com/en-us/sysinternals/)
-- [Sysmon Configuration Reference](https://github.com/SwiftOnSecurity/sysmon-config)
-- [MITRE ATT&CK Framework](https://attack.mitre.org/)
-- [Windows Security Log Encyclopedia](https://www.ultimatewindowssecurity.com/)
-
----
-
- **If you find this project helpful, please consider giving it a star!**
+All techniques in this lab are executed in an isolated virtual environment for educational purposes only. Do not use any of this against systems you do not own or have explicit written permission to test.
