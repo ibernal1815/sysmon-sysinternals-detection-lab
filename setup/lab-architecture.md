@@ -1,278 +1,87 @@
 # Lab Architecture
 
-##  Overview
+## Overview
 
-This detection lab uses an isolated virtual environment to safely simulate attacks and practice detection techniques. The architecture prioritizes security isolation while maintaining flexibility for logging and analysis.
+The lab runs three VMs on an isolated internal network inside VirtualBox. The Windows 11 machine is the victim, Kali is the attacker, and Wazuh handles log collection, alerting, and SIEM functionality. Nothing on the attack network touches the internet during active testing.
 
-##  Host System Specifications
+## Host Machine
 
-**Hardware:**
-- **CPU:** Intel Core i5-14400F (10 cores, 16 threads)
-- **RAM:** 48GB DDR4
-- **Storage:** 1TB NVMe SSD
-- **Network:** 2.5Gb Ethernet LAN
-- **GPU:** AMD Radeon RX 7600 (not used for VMs)
+Intel Core i5-14400F, 48GB DDR4, 1TB NVMe, Windows 11 Pro with VirtualBox 7. The three VMs consume around 14GB RAM combined, leaving plenty of headroom on the host.
 
-**Host OS:**
-- Windows 11 Pro (64-bit)
-- VirtualBox 7.0+
+## Virtual Machines
 
-**Resource Allocation:**
-- VMs: ~20GB RAM total
-- Host OS: ~28GB RAM remaining
-- Adequate overhead for smooth operation
+### Windows 11 Victim (192.168.100.20)
 
-##  Virtual Machine Layout
+This is the target machine. It runs Sysmon with the SwiftOnSecurity config as a baseline, the full Sysinternals Suite, and Winlogbeat to forward logs to Wazuh.
 
-### Windows 11 Victim Machine
-**Purpose:** Target system instrumented for detection and analysis
+4 cores, 6GB RAM, 60GB dynamically allocated disk. Two network adapters: NAT for initial setup and updates, and Internal Network "AttackLab" for lab traffic. Disable the NAT adapter before running any attack scenarios.
 
-**Specifications:**
-- **RAM:** 6GB
-- **CPU:** 4 cores
-- **Disk:** 60GB (dynamically allocated)
-- **OS:** Windows 11 Pro 22H2 (or Windows 11 Enterprise)
-- **Network Adapters:**
-  - Adapter 1: NAT (for internet access during setup)
-  - Adapter 2: Internal Network "AttackLab"
+Windows Defender is disabled for controlled testing. Firewall stays enabled and gets toggled per scenario. UAC is at default. Windows Update is paused during active use. A local administrator account is enabled.
 
-**Installed Software:**
-- Sysmon 15.0+ with custom configuration
-- Sysinternals Suite (full installation)
-- .NET Framework 4.8+
-- PowerShell 5.1+
-- Optional: Chrome, 7-Zip, Notepad++
+### Kali Linux Attacker (192.168.100.10)
 
-**Security Posture:**
-- Windows Defender **DISABLED** (for controlled attack testing)
-- Windows Firewall **ENABLED** (can be toggled per scenario)
-- UAC set to default
-- Windows Update paused during testing
-- Local administrator account enabled
+The offensive platform. Standard Kali installation with Metasploit, Nmap, Impacket, Responder, Evil-WinRM, netcat, and custom PowerShell payloads staged here for transfer to the victim.
 
----
+2 cores, 4GB RAM, 40GB dynamically allocated disk. One network adapter on the internal AttackLab network only. No internet access during testing.
 
-### Kali Linux Attacker Machine
-**Purpose:** Offensive security platform for attack simulation
+### Wazuh Server (192.168.100.30)
 
-**Specifications:**
-- **RAM:** 4GB
-- **CPU:** 2 cores
-- **Disk:** 40GB (dynamically allocated)
-- **OS:** Kali Linux 2024.x (latest)
-- **Network Adapter:**
-  - Adapter 1: Internal Network "AttackLab"
+Wazuh handles log ingestion from the Windows victim via the Wazuh agent (replacing Winlogbeat), runs detection rules including MITRE ATT&CK mapped alerts out of the box, and exposes a web dashboard for alert triage and hunting. It runs on Ubuntu Server 22.04 LTS on top of the Elastic stack.
 
-**Installed Tools:**
-- Metasploit Framework
-- Nmap
-- Impacket suite (PsExec, WMIExec, etc.)
-- Responder
-- Mimikatz (compiled for Windows)
-- Custom PowerShell payloads
-- netcat / socat
-- Evil-WinRM
+2 cores, 4GB RAM, 50GB disk. Two adapters: Internal Network "AttackLab" for receiving agent logs, and NAT temporarily during initial package installation. Pull the NAT adapter once Wazuh is fully configured.
 
-**Network Configuration:**
-- Static IP: 192.168.100.10/24
-- No internet access (air-gapped for safety)
-- Can reach Windows victim at 192.168.100.20
+## Network
 
----
+All three VMs sit on an internal VirtualBox network named "AttackLab" with subnet 192.168.100.0/24. No DHCP — IPs are assigned statically. This network is fully isolated from the host and the internet.
 
-### Optional: Ubuntu ELK Stack Server
-**Purpose:** Centralized log collection and analysis
+| Machine | IP |
+|---|---|
+| Kali Attacker | 192.168.100.10 |
+| Windows Victim | 192.168.100.20 |
+| Wazuh Server | 192.168.100.30 |
 
-**Specifications:**
-- **RAM:** 4GB
-- **CPU:** 2 cores
-- **Disk:** 50GB
-- **OS:** Ubuntu Server 22.04 LTS
-- **Network Adapters:**
-  - Adapter 1: Internal Network "AttackLab"
-  - Adapter 2: NAT (for package downloads)
+NAT adapters exist on the Windows and Wazuh VMs for initial setup only. Both get disabled before any scenario runs.
 
-**Stack Components:**
-- Elasticsearch 8.x
-- Logstash 8.x
-- Kibana 8.x
-- Winlogbeat (installed on Windows victim)
-
-**Note:** This VM is optional. You can analyze Sysmon logs directly on the victim machine using Event Viewer or export to your host for analysis.
-
-##  Network Architecture
-
-### Network Topology
+## Network Diagram
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         Host Machine                            │
-│                    Windows 11 - i5-14400F                       │
-│                         48GB RAM                                │
-└────────────┬────────────────────────────────────────────────────┘
-             │
-             │ VirtualBox Hypervisor
-             │
-    ┌────────┴────────┬──────────────────┬──────────────────────┐
-    │                 │                  │                      │
-┌───▼────────┐   ┌────▼─────────┐   ┌───▼──────────┐   ┌──────▼──────┐
-│    NAT     │   │  Internal    │   │ Host-Only    │   │   Bridge    │
-│  Network   │   │  "AttackLab" │   │   Adapter    │   │  (unused)   │
-└────────────┘   └──────┬───────┘   └──────────────┘   └─────────────┘
-                        │
-        ┌───────────────┼───────────────┐
-        │               │               │
-   ┌────▼─────┐    ┌───▼─────┐    ┌───▼──────┐
-   │ Windows  │    │  Kali   │    │   ELK    │
-   │  Victim  │    │ Attacker│    │  Stack   │
-   │          │    │         │    │ (Optional)│
-   │ .100.20  │    │ .100.10 │    │ .100.30  │
-   └──────────┘    └─────────┘    └──────────┘
+                        Host Machine
+                   Windows 11 / VirtualBox
+                        48GB RAM
+
+                   Internal Network "AttackLab"
+                      192.168.100.0/24
+
+        .100.10              .100.20              .100.30
+      Kali Linux          Windows 11            Wazuh Server
+       Attacker             Victim              Ubuntu 22.04
+                               |                    |
+                        Wazuh Agent            Wazuh Manager
+                        (log shipping)         (detection + UI)
 ```
 
-### Network Configuration Details
+## Data Flow
 
-**Internal Network "AttackLab"**
-- **Type:** Internal Network (isolated from host and internet)
-- **Subnet:** 192.168.100.0/24
-- **No DHCP:** Static IPs assigned manually
-- **Purpose:** Isolated attack simulation environment
+Kali executes an attack against the Windows victim over the internal network. Sysmon captures the activity and writes to the Windows Event Log. The Wazuh agent on the victim ships those logs to the Wazuh manager on the Ubuntu server in near real time. Wazuh correlates events against its ruleset and fires alerts, which show up in the dashboard. You can also hunt manually through raw log data in the Discover view.
 
-**IP Address Assignments:**
-| Host | IP Address | Purpose |
-|------|------------|---------|
-| Windows Victim | 192.168.100.20 | Target machine |
-| Kali Attacker | 192.168.100.10 | Attack platform |
-| ELK Stack | 192.168.100.30 | Log aggregation (optional) |
+For scenarios where you want to work closer to the raw events, Event Viewer and Sysinternals tools on the victim are still the primary analysis surface. Wazuh is there for correlation and triage practice.
 
-**NAT Network (Temporary)**
-- **Purpose:** Initial VM setup, Windows updates, tool downloads
-- **When to use:** During VM configuration phase only
-- **Security:** Disable NAT adapter before running attack scenarios
+## Analysis Workflow
 
-##  Data Flow
+Run the attack from Kali. Watch live behavior on the victim using Process Explorer and TCPView. Capture detailed activity with Process Monitor. Review Sysmon event IDs in Event Viewer. Cross-reference what Wazuh fired and what it missed. Extract IOCs, document findings, restore the victim snapshot, repeat.
 
-### Attack Execution Flow
-```
-Kali Attacker (192.168.100.10)
-         │
-         │ Execute attack (network/local)
-         ▼
-Windows Victim (192.168.100.20)
-         │
-         │ Sysmon captures events
-         ▼
-Windows Event Log (Microsoft-Windows-Sysmon/Operational)
-         │
-         │ (Optional) Winlogbeat forwards
-         ▼
-ELK Stack (192.168.100.30)
-         │
-         │ Parse, index, visualize
-         ▼
-Kibana Dashboard
-```
+## Isolation and Safety
 
-### Analysis Workflow
-```
-1. Execute attack from Kali
-2. Observe behavior on Windows (Process Explorer, TCPView)
-3. Capture activity with Process Monitor
-4. Review Sysmon logs in Event Viewer
-5. Correlate events to reconstruct attack timeline
-6. Extract IOCs and document findings
-7. Restore VM to clean snapshot
-8. Repeat with variations
-```
+VMs cannot access the host filesystem. No shared folders, no clipboard sharing, no drag-and-drop during attack scenarios. NAT adapters are disabled before executing anything offensive. Snapshots give you instant rollback on the victim so you always have a clean baseline to return to.
 
-##  Security Considerations
+## Snapshot Strategy
 
-### Isolation Strategy
-- **No outbound internet** from attack network during active testing
-- **Air-gapped environment** prevents accidental malware escape
-- **Host-only management** access for VM administration
-- **Snapshots** allow instant rollback to clean state
+Take snapshots at the following points and name them with a date and description so the timeline is clear.
 
-### Attack Containment
-- VMs cannot access host filesystem directly
-- No shared folders enabled during attack scenarios
-- Clipboard sharing disabled
-- Drag-and-drop disabled
+Fresh OS install before any configuration. Sysmon and Sysinternals installed and validated. Wazuh agent connected and shipping logs. Full baseline ready with all tools in place. Pre-scenario snapshot before each attack run.
 
-### Safe Testing Practices
-1. **Always work from snapshots** - Never run attacks on production systems
-2. **Disconnect NAT** before executing malware or exploits
-3. **Verify network isolation** before each attack scenario
-4. **Document everything** - Maintain lab notebook with timestamps
-5. **Clean up thoroughly** - Restore to baseline between scenarios
+A consistent naming pattern like `2025-06-01_Win11Victim_BaselineReady` keeps things readable when you have a dozen snapshots stacked up.
 
-##  Resource Monitoring
+## Expanding the Lab Later
 
-**Recommended Host Resources During Lab Use:**
-- **Available RAM:** 28GB+ for smooth operation
-- **CPU Usage:** Monitor with Task Manager; pause VMs if host slows
-- **Disk I/O:** NVMe handles VM operations well; avoid HDD if possible
-- **Network:** Internal networks have no bandwidth constraints
-
-**VM Performance Tips:**
-- Allocate RAM in 2GB increments for efficiency
-- Use fixed-size disks if storage isn't constrained (faster I/O)
-- Enable VT-x/AMD-V and nested paging in BIOS
-- Disable unnecessary Windows services in victim VM
-
-##  Snapshot Strategy
-
-**Recommended Snapshots:**
-
-1. **"Fresh Install"** - Clean OS install before any configuration
-2. **"Sysmon Configured"** - Sysmon installed with proper config
-3. **"Baseline Ready"** - All tools installed, ready for attacks
-4. **"Pre-Scenario-X"** - Before each attack scenario
-5. **"Post-Scenario-X"** - After successful attack for comparison
-
-**Snapshot Naming Convention:**
-```
-YYYY-MM-DD_VMName_Description
-Example: 2024-02-15_Win10Victim_BaselineReady
-```
-
-##  Scalability Options
-
-### Expanding the Lab
-
-**Active Directory Domain:**
-- Add Windows Server 2019/2022 as Domain Controller
-- Join victim as domain member
-- Practice lateral movement between domain-joined systems
-
-**Multiple Victims:**
-- Clone Windows victim for multi-host scenarios
-- Simulate network propagation attacks
-- Test detection at scale
-
-**SIEM Integration:**
-- Forward Sysmon logs to Wazuh
-- Create custom detection rules
-- Build correlation alerts
-
-**Malware Analysis Environment:**
-- Add REMnux VM for malware analysis
-- Integrate with Cuckoo Sandbox
-- Capture full PCAP for traffic analysis
-
-##  Documentation Standards
-
-Every configuration change should be documented:
-- What was changed and why
-- Configuration file locations
-- Commands executed
-- Expected vs actual behavior
-- Troubleshooting steps taken
-
-This ensures reproducibility and helps others learn from your work.
-
----
-
-**Next Step:** Follow `vm-setup-guide.md` to build this architecture from scratch.
-
-
+When you're ready to go beyond the current three VMs, the most useful additions in order are a Windows Server domain controller to practice lateral movement in an AD environment, a REMnux VM for malware analysis alongside Digital Forensics work, and additional victim clones to simulate multi-host propagation scenarios.
