@@ -1,7 +1,8 @@
 # Sysmon + Sysinternals Detection Lab .gitignore
+# Professional Baseline Configuration
 
 # ==========================================
-# Virtual Machine Files
+# Virtual Machine & Hypervisor Files
 # ==========================================
 *.vdi
 *.vmdk
@@ -12,7 +13,12 @@
 *.vmx
 *.vmxf
 *.vmsd
+*.ova
+*.ovf
 Snapshots/
+.VirtualBox/
+VBoxGuestAdditions_*.iso
+.vagrant/
 
 # ==========================================
 # Memory Dumps & Large Binary Files
@@ -24,16 +30,19 @@ Snapshots/
 *.bin
 *.hive
 *.dat
+lsass*.dmp     # Explicitly ignore ProcDump LSASS extractions
 
 # ==========================================
-# Windows Event Logs (Raw)
+# Windows Event Logs & Trace Captures
 # ==========================================
 *.evtx
 *.evt
+*.etl          # Event Trace Logs (ETW)
 
-# Keep example/sanitized event logs
+# Keep sanitized example event logs for documentation
 !scenarios/**/sysmon-events.json
 !scenarios/**/example-events.evtx
+!assets/**/*.evtx
 
 # ==========================================
 # Network Captures
@@ -42,21 +51,22 @@ Snapshots/
 *.pcapng
 *.cap
 
-# Keep example captures under 10MB
+# Keep small example captures for scenario evidence
 !scenarios/**/example-traffic.pcap
 
 # ==========================================
-# Malware Samples & Payloads
+# Malware Samples & Offensive Payloads
 # ==========================================
 *.exe
 *.dll
 *.scr
 *.msi
+*.sys
 *.ps1.encrypted
 malware-samples/
 payloads/
 
-# Allow legitimate PowerShell scripts
+# Allow legitimate PowerShell provisioning scripts
 !scenarios/**/*.ps1
 !tools/**/*.ps1
 !setup/**/*.ps1
@@ -76,25 +86,35 @@ secrets/
 .env.local
 
 # ==========================================
-# Process Monitor Files
+# Sysinternals Output
 # ==========================================
+# Process Monitor
 *.pml
 Logfile.PML
 
-# Keep filter configurations
-!tools/**/procmon-filters/*.pmc
-
-# ==========================================
-# Autoruns Output (Large CSVs)
-# ==========================================
+# Autoruns Output (Large CSVs/ARNs)
 *-autoruns-full.csv
 baseline-*.arn
 
-# Keep example baseline
+# Keep baseline and filter configurations
+!tools/**/procmon-filters/*.pmc
 !tools/baseline-autoruns-example.csv
 
 # ==========================================
-# Temporary Files
+# SIEM & Log Aggregation (Wazuh / Elastic)
+# ==========================================
+elasticsearch/data/
+logstash/data/
+kibana/data/
+wazuh/data/
+wazuh/logs/
+
+# Keep custom Wazuh rules and decoders
+!wazuh/rules/*.xml
+!wazuh/decoders/*.xml
+
+# ==========================================
+# Temporary Files & OS Junk
 # ==========================================
 *.tmp
 *.temp
@@ -105,18 +125,51 @@ baseline-*.arn
 .DS_Store
 Thumbs.db
 desktop.ini
+$RECYCLE.BIN/
+*.lnk
+ntuser.*
 
 # ==========================================
-# IDE & Editor Files
+# Archives
+# ==========================================
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.iso
+
+# Keep small documentation or tool archives
+!docs/**/*.zip
+!tools/**/*.zip
+
+# ==========================================
+# Personal Notes, Drafts & Sandboxes
+# ==========================================
+NOTES.md
+TODO.md
+scratch/
+drafts/
+test-data/
+sandbox/
+temp-analysis/
+
+# ==========================================
+# Development, IDE & Editor Files
 # ==========================================
 .vscode/
 .idea/
 *.sublime-project
 *.sublime-workspace
 .vs/
+.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
 # ==========================================
-# Python (if using any analysis scripts)
+# Python Environment (Backend analysis)
 # ==========================================
 __pycache__/
 *.py[cod]
@@ -125,10 +178,10 @@ __pycache__/
 .Python
 venv/
 ENV/
-.venv
+.venv/
 
 # ==========================================
-# Node modules (if using any JS tools)
+# Node/JS Environment (Frontend UI)
 # ==========================================
 node_modules/
 npm-debug.log*
@@ -145,82 +198,7 @@ bin/
 obj/
 
 # ==========================================
-# Archives (usually too large for git)
+# Force Keep Empty Directories
 # ==========================================
-*.zip
-*.rar
-*.7z
-*.tar
-*.gz
-*.iso
-
-# Keep small documentation archives
-!docs/**/*.zip
-
-# ==========================================
-# Logs & Debugging
-# ==========================================
-logs/
-*.log
-debug.log
-error.log
-
-# ==========================================
-# User-specific files
-# ==========================================
-.user
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
-# ==========================================
-# ELK Stack Data (if running locally)
-# ==========================================
-elasticsearch/data/
-logstash/data/
-kibana/data/
-
-# ==========================================
-# Windows Specific
-# ==========================================
-$RECYCLE.BIN/
-*.lnk
-ntuser.*
-
-# ==========================================
-# VirtualBox Specific
-# ==========================================
-.VirtualBox/
-VBoxGuestAdditions_*.iso
-
-# ==========================================
-# Personal Notes & Drafts
-# ==========================================
-NOTES.md
-TODO.md
-scratch/
-drafts/
-
-# ==========================================
-# Test Data & Sandbox
-# ==========================================
-test-data/
-sandbox/
-temp-analysis/
-
-# ==========================================
-# Screenshot Metadata
-# ==========================================
-# Keep screenshots but ignore Photoshop files
-*.psd
-*.ai
-*.sketch
-
-# ==========================================
-# Package Manager Locks (optional)
-# ==========================================
-# Uncomment if you want to ignore lock files
-# package-lock.json
-# yarn.lock
-# Pipfile.lock
+# Useful to maintain repo structure for logs, assets, and payloads
+!.gitkeep
