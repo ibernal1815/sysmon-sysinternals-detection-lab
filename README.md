@@ -1,70 +1,47 @@
-# sysmon-detection-lab
+# Sysmon & Sysinternals Detection Lab
 
-A hands-on Windows detection lab built to practice identifying attacker TTPs at the event level using Sysmon and the Sysinternals Suite. Every scenario is mapped to MITRE ATT&CK and documented with real logs, the specific event IDs triggered, and the detection logic that catches it.
+![Build Status](https://img.shields.io/badge/Status-Active_Development-blue)
+![Focus](https://img.shields.io/badge/Focus-Detection_Engineering-red)
+![Platform](https://img.shields.io/badge/Environment-VirtualBox-lightgrey)
 
-This is a work in progress. Nothing gets added to the scenario list until it is fully documented with actual log output and a working detection rule.
+## Project Objective
+This repository serves as a dedicated detection engineering laboratory focused on generating, capturing, and analyzing telemetry from Windows Sysinternals tools. The primary goal is to establish baseline benign activity, simulate the malicious misuse of administrative utilities, and develop high-fidelity detection logic utilizing Sysmon and centralized log aggregation.
 
-## Background
+## Logical Architecture
+The laboratory is built on a type-2 hypervisor with isolated networking to ensure a secure and controlled testing environment. 
 
-Reading about Sysmon event IDs is one thing. Watching a credential dump happen and then finding exactly which events fired and why is another. I wanted a lab where I could run real techniques, capture the actual logs, and build detections from what I saw rather than from documentation.
+* **Hypervisor:** Oracle VM VirtualBox
+* **Host Operating System:** Windows 11 Pro
+* **Network Configuration:** Host-Only Adapter (Isolated subnet)
+* **Target Endpoints:** Windows Client / Windows Server VMs
 
-The goal is not to collect attack scripts. It is to understand what each technique looks like from the defender side well enough to write detection logic that catches it.
+## Technologies Utilized
+* **Endpoint Telemetry:** Sysmon (System Monitor)
+* **Execution Tools:** Windows Sysinternals Suite (PsExec, ProcDump, Autoruns, SDelete)
+* **Log Aggregation:** [Insert SIEM, e.g., Elastic Stack / Wazuh / Windows Event Viewer]
+* **Automation:** PowerShell
 
-## Environment
+## MITRE ATT&CK Mapping
+The simulation scenarios developed in this laboratory map directly to the MITRE ATT&CK framework, focusing specifically on how adversaries leverage legitimate system administration tools ("Living off the Land") for post-exploitation operations.
 
-Three VMs on an isolated VirtualBox internal network.
+| Tactic | Technique ID | Technique Name | Tool Analyzed |
+|---|---|---|---|
+| Credential Access | T1003.001 | OS Credential Dumping: LSASS Memory | ProcDump |
+| Execution | T1569.002 | System Services: Service Execution | PsExec |
+| Persistence | T1547.001 | Boot or Logon Autostart Execution | Autoruns |
+| Defense Evasion | T1070.001 | Indicator Removal: Clear Windows Event Logs | SDelete / PsExec |
 
-The victim is Windows 11 Enterprise with Sysmon deployed using the SwiftOnSecurity config as a baseline. The attacker is Kali Linux with standard offensive tooling. There is an optional Ubuntu ELK Stack VM for log aggregation, but most analysis is done directly in Event Viewer and Sysinternals tools to stay close to what a SOC analyst actually works with day to day.
+## Repository Structure
+* `README.md` - Project overview, objectives, and architecture topology.
+* `SETUP.md` - Environment provisioning, network isolation configuration, and Sysmon baseline deployment.
+* `SCENARIOS.md` - Detailed attack execution syntax, expected Sysmon Event IDs, and subsequent detection queries.
+* `assets/` - Network topology diagrams and cropped telemetry evidence.
 
-Host specs are an Intel i5-14400F, 48GB DDR4, and 1TB NVMe running Windows 11 with VirtualBox 7.
-
-## Setup
-
-The setup/ folder has the Sysmon configuration XML and the VM networking guide. Start there before running any scenario.
-
-```bash
-git clone https://github.com/ibernal1815/sysmon-detection-lab.git
-cd sysmon-detection-lab
-```
-
-Follow setup/vm-setup-guide.md to configure the VirtualBox internal network and provision the VMs, then deploy Sysmon on the victim using setup/sysmon-config.xml.
-
-## Scenarios
-
-| ID | Technique | MITRE | Status |
-|----|-----------|-------|--------|
-| 01 | Persistence via Registry Run Keys | T1547.001 | In progress |
-| 02 | Credential Dumping via LSASS | T1003.001 | Planned |
-| 03 | Lateral Movement via PsExec | T1570 | Planned |
-| 04 | DLL Injection | T1055.001 | Planned |
-
-Each scenario folder contains the attack steps, the Sysmon event IDs triggered, raw log output, a Sysinternals detection walkthrough, and a Sigma rule.
-
-## Project Layout
-
-```
-setup/          lab setup guides and Sysmon config
-scenarios/      attack scenarios with detection walkthroughs
-detections/     Sigma rules and Sysmon filter logic per scenario
-```
-
-## Tools
-
-Detection: Sysmon, Process Explorer, Process Monitor, Autoruns, TCPView, ProcDump, Windows Event Viewer, Elastic Stack optional for log search.
-
-Attack simulation: Metasploit, Mimikatz, custom PowerShell scripts.
-
-## References
-
-[SwiftOnSecurity Sysmon Config](https://github.com/SwiftOnSecurity/sysmon-config)
-[MITRE ATT&CK](https://attack.mitre.org/)
-[Sysinternals Documentation](https://docs.microsoft.com/en-us/sysinternals/)
-[Ultimate Windows Security Event Encyclopedia](https://www.ultimatewindowssecurity.com/)
-
-## Stack
-
-Sysmon · Sysinternals Suite · Windows Event Viewer · Elastic Stack · Sigma · Kali Linux · VirtualBox
-
-## Legal
-
-All techniques in this lab are executed in an isolated virtual environment for educational purposes only. Do not use any of this against systems you do not own or have explicit written permission to test.
+## Project Roadmap
+- [x] Establish initial VirtualBox lab environment and network isolation.
+- [ ] Deploy and configure Sysmon with baseline XML ruleset.
+- [ ] Document configuration parameters in `SETUP.md`.
+- [ ] Execute baseline ProcDump LSASS extraction and document Event ID 10 / Event ID 11 telemetry.
+- [ ] Execute baseline PsExec lateral movement and document Event ID 1 / Event ID 3 telemetry.
+- [ ] Develop and validate SIEM detection queries for ProcDump and PsExec scenarios.
+- [ ] Expand testing repository to include Autoruns and Procexp misuse.
