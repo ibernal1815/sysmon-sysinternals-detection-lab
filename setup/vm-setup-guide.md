@@ -1,215 +1,202 @@
-# VM Setup Guide
+# Virtual Machine Provisioning & Configuration Guide
 
-Step-by-step build instructions for the lab. Plan for 2 to 3 hours start to finish. You need VirtualBox 7+ installed, a Windows 11 Enterprise evaluation ISO, a Kali Linux ISO, and the Wazuh OVA or installer ready before starting.
+This document provides the step-by-step procedures to provision, configure, and validate the three virtual machines comprising the detection laboratory. 
 
-## Downloads
+## Prerequisites & Media
 
-[VirtualBox 7.0+](https://www.virtualbox.org/wiki/Downloads) and the Extension Pack.
+Ensure all required media is downloaded prior to beginning the deployment phase.
 
-[Windows 11 Enterprise Evaluation ISO](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-11-enterprise) — around 5-6GB, valid for 90 days and renewable.
+| Resource | Version / Link | Purpose |
+|---|---|---|
+| **Hypervisor** | [VirtualBox 7.0+](https://www.virtualbox.org/wiki/Downloads) | Core virtualization platform and Extension Pack. |
+| **Windows OS** | [Windows 11 Enterprise Eval](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-11-enterprise) | Target victim endpoint (90-day evaluation). |
+| **Kali Linux** | [Kali Offline Installer](https://www.kali.org/get-kali/) | Offensive simulation platform. |
+| **Wazuh SIEM** | [Wazuh OVA](https://documentation.wazuh.com/current/deployment-options/virtual-machine/virtual-machine.html) | Pre-configured log aggregation and SIEM node. |
+| **Sysinternals** | [Sysinternals Suite](https://docs.microsoft.com/en-us/sysinternals/downloads/sysinternals-suite) | Execution utilities for telemetry generation. |
 
-[Kali Linux Installer ISO](https://www.kali.org/get-kali/) — grab the installer image, not the live image.
+---
 
-[Sysinternals Suite](https://docs.microsoft.com/en-us/sysinternals/downloads/sysinternals-suite) — download and extract somewhere on your host before you start.
+## Phase 1: Windows 11 Target (Victim)
 
-[Wazuh OVA](https://documentation.wazuh.com/current/deployment-options/virtual-machine/virtual-machine.html) — the pre-built OVA is the fastest way to get the server up.
+### 1.1 Virtual Machine Allocation
+Provision a new virtual machine in VirtualBox with the following parameters:
+*   **Name:** `Win11-Victim`
+*   **Type/Version:** Microsoft Windows 11 (64-bit)
+*   **CPU / RAM:** 4 vCPUs / 6GB (6144 MB) RAM (Enable PAE/NX)
+*   **Storage:** 60GB Dynamically Allocated VDI
+*   **Network Adapter 1:** NAT (Temporary for setup/updates)
+*   **Network Adapter 2:** Internal Network (`AttackLab`)
 
-## Part 1: Windows 11 Victim
+### 1.2 OS Installation
+Execute the Windows Setup process. When prompted for network connectivity during the Out-of-Box Experience (OOBE), select "I don't have internet" to bypass Microsoft Account requirements. Provision a local administrator account named `LabAdmin` and disable all telemetry/privacy toggles.
 
-### Create the VM
+### 1.3 Operating System Configuration
+Open an elevated PowerShell prompt (Run as Administrator) and execute the following configuration blocks.
 
-In VirtualBox Manager click New. Name it Win11-Victim, type Microsoft Windows, version Windows 11 64-bit. Assign 6GB RAM and create a 60GB dynamically allocated VDI disk.
+**Disable Windows Defender (Permanent via Safe Mode):**
+*Note: Standard `Set-MpPreference` commands do not survive reboots in modern Windows 11 builds. You must boot into Safe Mode (`msconfig` > Boot > Safe boot) to execute the following registry modifications.*
 
-Go into Settings before you start it.
+~~~cmd
+reg add "HKLM\System\CurrentControlSet\Services\WinDefend" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\System\CurrentControlSet\Services\WdNisSvc" /v Start /t REG_DWORD /d 4 /f
+reg add "HKLM\System\CurrentControlSet\Services\Sense" /v Start /t REG_DWORD /d 4 /f
+~~~
 
-Under System > Processor set it to 4 CPUs and enable PAE/NX. Under Display set video memory to 128MB. Under Storage attach your Windows 11 ISO to the IDE controller. Under Network set Adapter 1 to NAT and enable Adapter 2 as Internal Network named AttackLab.
+**Disable Windows Update:**
 
-### Install Windows
-
-Start the VM and run through Windows Setup. When it asks for a network during OOBE click "I don't have internet" and create a local account named LabAdmin. Turn off all privacy settings. Once you're at the desktop you're done with the installer.
-
-### Configure the OS
-
-Open PowerShell as administrator and run through these in order.
-
-Disable Defender:
-
-```powershell
-Set-MpPreference -DisableRealtimeMonitoring $true
-Set-MpPreference -DisableIOAVProtection $true
-Set-MpPreference -DisableBehaviorMonitoring $true
-New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name DisableAntiSpyware -Value 1 -PropertyType DWORD -Force
-```
-
-Disable Windows Update:
-
-```powershell
+~~~powershell
 Stop-Service wuauserv
 Set-Service wuauserv -StartupType Disabled
-```
+~~~
 
-Enable RDP for lateral movement scenarios:
+**Enable Remote Desktop (Lateral Movement Preparation):**
 
-```powershell
+~~~powershell
 Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
 Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-```
+~~~
 
-Create a second test user:
+**Provision Secondary Test Account:**
 
-```powershell
+~~~powershell
 net user labuser Password123! /add
 net localgroup administrators labuser /add
-```
+~~~
 
-Set the static IP on Adapter 2. Open Network and Internet Settings, Change adapter options, right-click the Internal Network adapter, Properties, IPv4, and set it to 192.168.100.20 with subnet 255.255.255.0. Leave gateway and DNS blank.
+**Static Network Configuration:**
+Identify the `AttackLab` adapter index using `Get-NetAdapter`, then assign the static IP:
 
-Install VirtualBox Guest Additions from the Devices menu, then restart.
+~~~powershell
+New-NetIPAddress -InterfaceAlias "Ethernet 2" -IPAddress 192.168.100.20 -PrefixLength 24
+~~~
+*Install VirtualBox Guest Additions and perform a system reboot.*
 
-### Install Sysmon
+### 1.4 Telemetry & Tooling Deployment
+Establish the `C:\Tools` directory and extract the Sysinternals Suite into `C:\Tools\SysinternalsSuite`. Launch `procexp64.exe` and `autoruns64.exe` once to accept the EULAs.
 
-Create `C:\Tools\` and copy `sysmon-config.xml` from this repo into it. Then run:
+Deploy Sysmon using the provided baseline configuration:
 
-```powershell
+~~~powershell
 cd C:\Tools
 .\sysmon64.exe -accepteula -i sysmon-config.xml
 Get-Service Sysmon64
-```
+~~~
 
-The service should show Running. Open Event Viewer and navigate to Applications and Services Logs > Microsoft > Windows > Sysmon > Operational. Open Notepad on the desktop and refresh — you should see an Event ID 1 for notepad.exe. If you see that, Sysmon is working.
+### 1.5 Wazuh Agent Registration
+1. Download the Wazuh Agent MSI from the Wazuh Manager dashboard (configured in Phase 3).
+2. Install the MSI, pointing the agent to the Manager IP (`192.168.100.30`).
+3. Start the service:
 
-### Install Sysinternals
+~~~powershell
+Start-Service WazuhSvc
+~~~
 
-Extract the Sysinternals Suite to `C:\Tools\SysinternalsSuite\`. Launch procexp64.exe and autoruns64.exe once to accept the EULA so they don't prompt during a scenario.
+**Snapshot:** Perform a graceful shutdown and capture a snapshot named `Baseline-Ready`.
 
-### Install Wazuh Agent
+---
 
-Download the Wazuh agent MSI from the Wazuh dashboard after you have the server running (Part 3). Install it and point it at 192.168.100.30 during setup. Start the agent service:
+## Phase 2: Kali Linux (Attacker)
 
-```powershell
-NET START WazuhSvc
-Get-Service WazuhSvc
-```
+### 2.1 Virtual Machine Allocation
+*   **Name:** `Kali-Attacker`
+*   **Type/Version:** Linux / Debian (64-bit)
+*   **CPU / RAM:** 2 vCPUs / 4GB (4096 MB) RAM
+*   **Storage:** 40GB Dynamically Allocated VDI
+*   **Network Adapter 1:** Internal Network (`AttackLab`) *Only*
 
-### Take Baseline Snapshot
+### 2.2 OS Installation
+Select the Graphical Install. Assign the hostname `kali-attacker`, configure the primary user, utilize guided full-disk partitioning, and install the GRUB bootloader to `/dev/sda`.
 
-Shut the VM down cleanly. In VirtualBox Manager go to Snapshots and take one named `Baseline-Ready` with a short description. This is the snapshot you restore to before every scenario.
+### 2.3 Network Configuration
+Configure the static interface via the terminal:
 
-## Part 2: Kali Linux Attacker
-
-### Create the VM
-
-New VM named Kali-Attacker, type Linux, version Debian 64-bit. 4GB RAM, 2 CPUs, 40GB dynamically allocated VDI. Attach the Kali ISO. Under Network set Adapter 1 to Internal Network AttackLab only — no NAT on this machine.
-
-### Install Kali
-
-Start the VM and select Graphical Install. Hostname kali-attacker, leave domain blank, set up a kali user with a password, guided full disk partitioning, default Xfce software selection. Install GRUB to /dev/sda and reboot.
-
-### Configure the Network
-
-```bash
+~~~bash
 sudo nano /etc/network/interfaces
-```
+~~~
 
-Add:
+Append the following configuration:
 
-```
+~~~text
 auto eth0
 iface eth0 inet static
     address 192.168.100.10
     netmask 255.255.255.0
-```
+~~~
 
-Restart networking and verify:
+Restart the networking service to apply changes:
 
-```bash
+~~~bash
 sudo systemctl restart networking
 ip addr show eth0
-ping 192.168.100.20
-```
+~~~
 
-If the interface name is not eth0, run `ip link show` to find the actual name and update the file accordingly.
+### 2.4 Offensive Tooling Deployment
+*(Note: Temporarily attach a NAT adapter if internet access is required to pull packages, then remove it).*
 
-### Install Additional Tools
-
-```bash
+~~~bash
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y impacket-scripts evil-winrm responder crackmapexec bloodhound neo4j
-```
+~~~
 
-### Take Snapshot
+**Snapshot:** Perform a graceful shutdown and capture a snapshot named `Kali-Configured`.
 
-Shut Kali down and take a snapshot named `Kali-Configured`.
+---
 
-## Part 3: Wazuh Server
+## Phase 3: Wazuh Server (SIEM)
 
-### Deploy the OVA
+### 3.1 Appliance Deployment
+Import the Wazuh OVA via `File > Import Appliance`. 
+Modify the network settings prior to boot:
+*   **Adapter 1:** Internal Network (`AttackLab`)
+*   **Adapter 2:** NAT (Temporary for initial setup/updates)
 
-Import the Wazuh OVA into VirtualBox via File > Import Appliance. After import go into Settings and set the network adapter to Internal Network AttackLab. Add a second adapter on NAT temporarily for the initial setup if you need to pull updates, then disable it once Wazuh is fully configured.
+### 3.2 Network Configuration
+Start the VM and log in using the default credentials (`admin` / `admin` — change these immediately). Modify the Netplan configuration for the static IP:
 
-Start the VM. Default credentials are admin/admin — change these immediately. The Wazuh dashboard runs on HTTPS at port 443.
-
-Set a static IP:
-
-```bash
+~~~bash
 sudo nano /etc/netplan/00-installer-config.yaml
-```
+~~~
 
-Set the AttackLab interface to 192.168.100.30/24 and apply:
+Apply the `192.168.100.30/24` schema to the `AttackLab` interface, then apply the configuration:
 
-```bash
+~~~bash
 sudo netplan apply
-```
+~~~
 
-From the Windows victim, open a browser and navigate to `https://192.168.100.30`. Log in to the dashboard and grab the agent enrollment command for Windows from Agents > Deploy New Agent. Run that on the victim to connect the Wazuh agent to the manager.
+**Snapshot:** Disconnect the NAT adapter, ensure the Wazuh dashboard is accessible via `https://192.168.100.30` from the Windows host, and capture a snapshot named `Wazuh-Configured`.
 
-### Take Snapshot
+---
 
-Once the agent is showing active in the dashboard, shut the Wazuh VM down and take a snapshot named `Wazuh-Configured`.
+## Phase 4: Validation & Troubleshooting
 
-## Validation
+Perform the following checks to ensure environmental integrity before executing attack scenarios.
 
-From Kali, ping both other machines:
+### 4.1 Connectivity Validation
+From the Kali Linux terminal:
 
-```bash
-ping 192.168.100.20
-ping 192.168.100.30
-```
+~~~bash
+ping -c 4 192.168.100.20
+ping -c 4 192.168.100.30
+~~~
 
-From Windows, test connectivity back:
+From the Windows 11 PowerShell prompt:
 
-```powershell
-Test-NetConnection 192.168.100.10
-Test-NetConnection 192.168.100.30
-```
+~~~powershell
+Test-NetConnection -ComputerName 192.168.100.10
+Test-NetConnection -ComputerName 192.168.100.30 -Port 443
+~~~
 
-On Windows, open a command prompt and run `whoami`. Refresh Event Viewer under Sysmon/Operational and look for Event ID 1. Check the Wazuh dashboard and confirm events are coming in from the Windows agent.
+### 4.2 Telemetry Pipeline Validation
+1.  On the Windows target, execute `whoami` in a command prompt.
+2.  Open Windows Event Viewer (`Applications and Services Logs > Microsoft > Windows > Sysmon > Operational`).
+3.  Verify the generation of **Event ID 1** (Process Creation) for `whoami.exe`.
+4.  Execute a port scan from Kali (`nmap -sV 192.168.100.20`).
+5.  Verify the generation of **Event ID 3** (Network Connection) in both the local Sysmon Event Log and the Wazuh SIEM dashboard.
 
-Run a quick Nmap scan from Kali:
+### 4.3 Common Troubleshooting
 
-```bash
-nmap -sV 192.168.100.20
-```
-
-Check Sysmon for Event ID 3 (network connection) entries. If you're seeing those in both Event Viewer and Wazuh, the pipeline is working end to end.
-
-## Troubleshooting
-
-If VMs cannot reach each other, confirm both are on the AttackLab internal network in VirtualBox settings, check the static IP config on each machine, and temporarily disable Windows Firewall to rule it out.
-
-If Sysmon is not logging, check the service and reinstall if needed:
-
-```powershell
-Get-Service Sysmon64
-Restart-Service Sysmon64
-sysmon64.exe -c
-sysmon64.exe -u
-sysmon64.exe -i sysmon-config.xml
-```
-
-If the Wazuh agent is not connecting, verify the manager IP in the agent config at `C:\Program Files (x86)\ossec-agent\ossec.conf` and restart the WazuhSvc service.
-
-If Kali networking is not coming up after a reboot, run `ip link show` to confirm the interface name and make sure it matches what is in `/etc/network/interfaces`.
-
-
-
+| Issue | Resolution |
+|---|---|
+| **No Network Connectivity** | Verify all VMs are assigned to the exact same Internal Network name (`AttackLab`). Ensure Windows Defender Firewall is not dropping ICMP. |
+| **Sysmon Telemetry Missing** | Re-initialize the configuration: `sysmon64.exe -c` followed by `sysmon64.exe -i sysmon-config.xml`. Restart the service: `Restart-Service Sysmon64`. |
+| **Wazuh Agent Disconnected** | Verify the Manager IP (`192.168.100.30`) is correct in `C:\Program Files (x86)\ossec-agent\ossec.conf`. Restart the `WazuhSvc` service. |
