@@ -1,34 +1,46 @@
-# Setup
+# Environment Provisioning & Setup
 
-This folder contains everything needed to build the lab from scratch. Work through the files in order and take a snapshot after each major step so you have a clean rollback point.
+This directory contains the necessary documentation and configuration files to provision the detection laboratory. It is highly recommended to capture hypervisor snapshots at each major configuration milestone to establish clean rollback baselines.
 
-## Contents
+## Hardware & Software Requirements
 
-`sysmon-config.xml` is the Sysmon configuration deployed on the victim machine. It's based on the SwiftOnSecurity baseline with modifications to capture process creation, network connections, registry changes, file creation events, and DLL loads.
+| Component | Specification |
+|---|---|
+| **Hypervisor** | Oracle VM VirtualBox 7.0+ |
+| **Host Resource Allocation** | ≥ 16GB RAM available, 100GB Free Disk Space |
+| **Target OS (Victim)** | Windows 11 Enterprise (Evaluation ISO) |
+| **Adversary OS (Attacker)** | Kali Linux ISO |
+| **Estimated Build Time** | 2 - 3 Hours |
 
-`lab-architecture.md` covers the full network design, VM resource allocation, and how the components talk to each other.
+## Directory Contents
 
-`vm-setup-guide.md` is the step-by-step build guide covering VirtualBox network setup, Windows 11 victim configuration, Kali attacker configuration, Sysmon installation, Sysinternals deployment, and snapshot strategy.
+*   **`lab-architecture.md`** - Details the logical network topology, virtual machine resource allocation, and inter-node communication paths.
+*   **`vm-setup-guide.md`** - Step-by-step provisioning instructions covering VirtualBox network configuration, OS deployment, Sysmon installation, and Sysinternals staging.
+*   **`sysmon-config.xml`** - Custom Sysmon configuration file deployed on the Windows target. Based on the SwiftOnSecurity baseline, optimized for Process Creation (ID 1), Network Connections (ID 3), Registry Events (ID 12-14), File Creation (ID 11), and Image Loads (ID 7).
+*   **`lab-architecture.png`** - Visual diagram of the network topology and data flow *(Pending)*.
 
-`lab-architecture.png` is a diagram of the network topology and data flow. *(planned)*
+## Provisioning Sequence
 
-## Requirements
+1.  **Architecture Review:** Review `lab-architecture.md` to establish the required virtual network adapters and routing configuration.
+2.  **OS Deployment:** Execute the build instructions in `vm-setup-guide.md` to deploy both the Windows 11 and Kali Linux virtual machines.
+3.  **Telemetry Configuration:** Deploy Sysmon on the Windows 11 target using the provided `sysmon-config.xml` file.
+4.  **Baseline Snapshot:** Capture a clean hypervisor snapshot prior to executing any simulated scenarios.
 
-You need VirtualBox 7+, a Windows 11 Enterprise ISO (evaluation builds are free from Microsoft), a Kali Linux ISO, at least 16GB of RAM available for VMs, and around 100GB of free disk space. Plan for 2 to 3 hours for a full build.
+## Pre-Flight Validation Criteria
 
-## Build Order
+Before initiating any detection scenarios, verify the following baseline conditions are met:
 
-Follow `lab-architecture.md` first to understand the network design, then `vm-setup-guide.md` to build the VMs, then deploy `sysmon-config.xml` on the victim machine. Take a clean baseline snapshot before running any scenarios.
+*   [ ] The VirtualBox internal network is active and both VMs reside on the same network interface name.
+*   [ ] ICMP Echo Requests (ping) succeed from the Kali VM to the Windows VM.
+*   [ ] Windows Defender is permanently disabled via Safe Mode registry modifications (Start keys for `WinDefend`, `WdNisSvc`, and `Sense` set to `4`) to prevent automated quarantine of testing tools.
+*   [ ] Windows Sysinternals Suite is extracted to `C:\Tools\`.
+*   [ ] The Sysmon service is in a running state.
+*   [ ] Windows Event Viewer (`Applications and Services Logs > Microsoft > Windows > Sysmon > Operational`) is actively populating with Event IDs 1, 3, and 13.
 
-## Validation
+## Troubleshooting Support
 
-Before touching any scenario, confirm the following:
-
-The VirtualBox internal network is configured and both VMs are on the same network name. The Kali VM can ping the Windows VM. Sysmon is running (`Get-Service Sysmon64`) and events are showing up in Event Viewer, at minimum Event IDs 1, 3, and 13. Sysinternals Suite is extracted to `C:\Tools\`. Windows Defender is disabled for controlled testing. A clean baseline snapshot exists.
-
-## Troubleshooting
-
-If Sysmon is not logging events, check the service status, verify the config loaded, and restart if needed:
+**Sysmon Telemetry Missing**
+If Sysmon fails to log events, verify the service status, reload the configuration XML, and restart the service via an elevated PowerShell prompt:
 
 ```powershell
 Get-Service Sysmon64
@@ -36,15 +48,18 @@ sysmon64.exe -c
 Restart-Service Sysmon64
 ```
 
-If the VMs cannot communicate, make sure both are assigned to the same internal network name in VirtualBox, check Windows Firewall rules on the victim, and test with `ping` and `Test-NetConnection`.
+**Network Isolation Issues**
+If the virtual machines cannot communicate:
+*   Verify both VMs are assigned to the identical internal network name within VirtualBox adapter settings.
+*   Verify Windows Defender Firewall inbound rules on the Windows target are not dropping ICMP traffic. 
+*   Validate connectivity using `Test-NetConnection -ComputerName <Target_IP>`.
 
-If the host is struggling with performance, pull back the RAM allocation on one of the VMs and close anything unnecessary on the host.
+**Host Performance Degradation**
+If the physical host experiences latency, reduce the RAM allocation on the Kali VM or suspend unnecessary host background processes during simulation runs.
 
 ## References
 
-[VirtualBox Documentation](https://www.virtualbox.org/manual/)
-[Sysmon Documentation](https://docs.microsoft.com/en-us/sysinternals/downloads/sysmon)
-[SwiftOnSecurity Sysmon Config](https://github.com/SwiftOnSecurity/sysmon-config)
-[Windows 11 Evaluation ISOs](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-11-enterprise)
-
-
+*   [VirtualBox Documentation](https://www.virtualbox.org/manual/)
+*   [Windows 11 Evaluation Media](https://www.microsoft.com/en-us/evalcenter/evaluate-windows-11-enterprise)
+*   [Sysmon Official Documentation](https://docs.microsoft.com/en-us/sysinternals/downloads/sysmon)
+*   [SwiftOnSecurity Sysmon Baseline](https://github.com/SwiftOnSecurity/sysmon-config)
